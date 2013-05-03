@@ -1,16 +1,21 @@
-
 $(document).ready(function() {
 
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    var paper = Raphael('holder', width, height);
 
-    // Creates canvas 320 × 200 at 10, 50
-    var paper = Raphael('holder', 400, 800);
+    var path = "M 0 " + height;
 
-    var path = "M 250 250 l 0 -10 l 10 0 l 0 -10 z";
+    var steps = data.length;
+    for (var i = 0; i < steps; i++) {
+        path = path + " l 0 -" + height/steps;
+        path = path + " l " + width/steps + " 0";
+    }
 
-    // Creates circle at x = 50, y = 40, with radius 10
+    console.log(path);
+
     var path = paper.path(path);
     // Sets the fill attribute of the circle to red (#f00)
-    path.attr("fill", "#f00");
 
     // Sets the stroke attribute of the path to white
     path.attr("stroke", "#000");
