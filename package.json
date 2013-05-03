@@ -1,0 +1,11 @@
+{
+  "name": "Starting Strength Visualization",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+  },
+  "dependencies": {
+    "underscore": "1.4.4",
+    "csv": "*"
+  }
+}
