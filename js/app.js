@@ -3,7 +3,7 @@ $(document).ready(function() {
     var width = window.innerWidth;
     var height = window.innerHeight;
 
-    var exercises = ["Squats", "Deadlifts", "Presses", "Bench Presses", "Power Clean"];
+    var exerciseNames = ["Squats", "Deadlifts", "Presses", "Bench Presses", "Power Clean"];
 
     var svg = d3.select("#container")
         .append("svg")
@@ -15,20 +15,22 @@ $(document).ready(function() {
 
     var prepareData = function(data) {
         return _.map(data, function(workout) {
-            var height = 0;
-            _.each(exercises, function(exercise) {
-                if (workout[exercise] !== undefined)
-                    height += _.max(_.map(
-                        _.pluck(workout[exercise], "weight"), function(val) {
-                            return parseInt(val);
-                        }));
+            var date = workout.Date;
+            var exercises = _.pick(workout, exerciseNames);
+            var numTotal = _.keys(exercises).length;
+            exercises = _.map(exercises, function(exercise, key) {
+                return {
+                    type: key,
+                    sets: exercise,
+                    numExercises: numTotal,
+                    date: date,
+                    weight: _.max(_.map(exercise, function(set) { return parseInt(set.weight); }))
+                };
             });
-            workout.height = height;
-            return workout;
+
+            return exercises;
         })
     };
-
-    data = prepareData(data);
 
     var dateFormat = d3.time.format("%m/%d/%Y");
 
@@ -59,21 +61,34 @@ $(document).ready(function() {
         .attr("fill", "red")
         .text(tickFormat);
 
-    var rectWidth = width / numDays;
+    exerciseData = prepareData(data);
 
+    var rectWidth = (width / numDays) / 3;
+    var colors = d3.scale.ordinal().domain(exerciseNames).range(["#000", "#222", "#444", "#666", "#888"]);
     var scale = d3.scale.linear()
-        .domain([0, _.max(_.pluck(data, "height"))])
-        .range([0, baseHeight   ]);
+        .domain([0, 450])
+        .range([0, baseHeight]);
 
-        debugger;
 
-    svg.selectAll("rect")
-        .data(data)
+    // init data vis to zero height
+    svg.selectAll(".bar-group")
+        .data(exerciseData)
+        .enter()
+        .append("g")
+        .selectAll("rect")
+        .data(function(d, i) { return d; })
         .enter()
         .append("rect")
         .attr("width", rectWidth)
-        .attr("height", function(d) { return scale(d.height); })
-        .attr("x", function(d, i) { return scaleTime(d["Date"]); })
-        .attr("y", function(d, i) { return baseHeight - scale(d.height); });
+        .attr("height", 0)
+        .attr("x", function(d, i) { return scaleTime(d.date) + rectWidth * i; })
+        .attr("y", baseHeight)
+        .attr("fill", function(d, i) { return colors(d.type); });
 
+    // transition the data to its full height
+    svg.selectAll("rect")
+        .transition()
+        .delay(function(d,i) { return i * 10; })
+        .attr("y", function(d, i) { return baseHeight - scale(d.weight); })
+        .attr("height", function(d) { return scale(d.weight); })
 });
