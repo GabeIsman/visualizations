@@ -76,7 +76,6 @@ var prepareData = function(data) {
                 }, 0)
             };
         });
-        debugger;
 
         return exercises;
     })
