@@ -24,7 +24,7 @@ var Dimensions = function(data, options) {
         dates = this.extractDates(data);
         this.time = d3.time.scale()
             .domain([dates.startDate, dates.endDate])
-            .range([0, options.width]);
+            .range([50, options.width]);
         this.time.numDays = dates.numDays;
 
         this.color = d3.scale.ordinal()
@@ -143,7 +143,7 @@ $(document).ready(function() {
         .attr("width", width)
         .attr("height", height);
 
-    // add date labels
+    // add labels
     svg.selectAll(".date")
         .data(ticks)
         .enter()
@@ -152,6 +152,16 @@ $(document).ready(function() {
         .attr("y", baseLine + 20)
         .attr("fill", "#444")
         .text(tickFormat);
+
+    // add labels
+    svg.selectAll(".label")
+        .data(dimensions.vertical.ticks(5))
+        .enter()
+        .append("text")
+        .attr("x", 0)
+        .attr("y", function(d, i) { return baseLine - dimensions.vertical(d) + 20; })
+        .attr("fill", "#444")
+        .text(function(d) { return d + "lbs" });
 
     // init data vis to zero height
     svg.selectAll(".bar-group")
