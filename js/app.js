@@ -23,7 +23,7 @@ var Dimensions = function(data, options) {
     };
 
 Dimensions.prototype.defaults = {
-    dataMax: 450,
+    dataMax: 500,
     baseHeight: 60,
     types: exerciseNames,
     colors: ["#000", "#222", "#444", "#666", "#888"],
@@ -156,6 +156,24 @@ $(document).ready(function() {
         .delay(function(d,i) { return i * 10; })
         .attr("y", function(d, i) { return baseLine - dimensions.vertical(d.weight); })
         .attr("height", function(d) { return dimensions.vertical(d.weight); });
+
+    var line = d3.svg.line()
+        .x(function(d,i) { return dimensions.time(d.date); })
+        .y(function(d,i) { return baseLine - dimensions.vertical(d.weight); })
+        .interpolate("basis");
+
+    var flattenedData = _.flatten(exerciseData, true);
+    var groupedData = _.groupBy(flattenedData, function(d) { return d['type']});
+
+    _.each(groupedData, function(exerciseGroup, key) {
+        svg.data([exerciseGroup])
+            .append("path")
+            .attr("d", line)
+            .attr("stroke", dimensions.color(key))
+            .attr("fill", "none")
+            .attr("stroke-width", "3");
+
+    });
 
     bindEvents();
 });
