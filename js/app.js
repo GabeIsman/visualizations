@@ -15,11 +15,11 @@ var Dimensions = function(data, options) {
         options = _.extend(this.defaults, options);
 
         this.vertical = d3.scale.linear()
-            .domain([50, options.dataMax])
+            .domain([options.dataMin, options.dataMax])
             .range([options.baseHeight, options.height]);
 
         this.reps = d3.scale.linear().domain([0, 20])
-            .range([options.baseHeight, options.height / 3])
+            .range([options.baseHeight, options.height / 4])
 
         dates = this.extractDates(data);
         this.time = d3.time.scale()
@@ -39,6 +39,7 @@ var Dimensions = function(data, options) {
 
 Dimensions.prototype.defaults = {
     dataMax: 500,
+    dataMin: 30,
     baseHeight: 60,
     types: exerciseNames,
     colors: ["#000", "#333", "#666", "#999", "#AAA"],
@@ -198,7 +199,7 @@ $(document).ready(function() {
         .interpolate("basis");
 
     var flattenedData = _.flatten(exerciseData, true);
-    var groupedData = _.groupBy(flattenedData, function(d) { return d['type']});
+    var groupedData = _.groupBy(flattenedData, function(d) { return d['type']; });
 
     _.each(groupedData, function(exerciseGroup, key) {
         svg.data([exerciseGroup])
