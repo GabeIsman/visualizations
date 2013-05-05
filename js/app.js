@@ -30,13 +30,18 @@ var Dimensions = function(data, options) {
         this.color = d3.scale.ordinal()
             .domain(options.types)
             .range(options.colors);
+
+        var step = 600;
+        this.fadeInDelay = d3.scale.ordinal()
+            .domain(options.types)
+            .range(_.map(options.types, function(v,k) { return k * step; }));
     };
 
 Dimensions.prototype.defaults = {
     dataMax: 500,
     baseHeight: 60,
     types: exerciseNames,
-    colors: ["#000", "#222", "#444", "#666", "#888"],
+    colors: ["#000", "#333", "#666", "#999", "#AAA"],
 }
 
 Dimensions.prototype.extractDates = function(data) {
@@ -125,6 +130,7 @@ $(document).ready(function() {
     var tickCount = data.length /  10;
     var ticks = dimensions.time.ticks(tickCount);
     var tickFormat = dimensions.time.tickFormat(tickCount);
+    var fadeInDuration = 500;
 
     // create the svg element
     var svg = d3.select("#container")
@@ -166,13 +172,15 @@ $(document).ready(function() {
     // transition the data to its full height
     svg.selectAll("rect")
         .transition()
-        .delay(function(d,i) { return i * 10; })
+        .delay(function(d,i) { return dimensions.fadeInDelay(d.type); })
+        .duration(fadeInDuration)
         .attr("y", function(d, i) { return baseLine - dimensions.reps(d.totalReps); })
         .attr("height", function(d) { return dimensions.reps(d.totalReps); });
 
     svg.selectAll("rect")
         .transition()
-        .delay(1500)
+        .delay(_.max(dimensions.fadeInDelay.range()) + fadeInDuration)
+        .duration(fadeInDuration)
         .attr("fill", function(d) {
             if (d.totalReps >= targetReps[d.type]) return dimensions.color(d.type);
             // failed out
@@ -193,8 +201,12 @@ $(document).ready(function() {
             .attr("d", line)
             .attr("stroke", dimensions.color(key))
             .attr("fill", "none")
-            .attr("stroke-width", "3");
-
+            .attr("stroke-width", "3")
+            .attr("stroke-opacity", 0)
+            .transition()
+            .delay(dimensions.fadeInDelay(key))
+            .duration(fadeInDuration)
+            .attr("stroke-opacity", 1);
     });
 
     bindEvents();
