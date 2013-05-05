@@ -95,27 +95,31 @@ $(document).ready(function() {
     var container = $("#container");
     var width = container.innerWidth();
     var height = container.innerHeight();
-
     var baseHeight = 60;
 
+    // initialize the container object for all the scales we will need
     var dimensions = new Dimensions(data, {
         width: width,
         height: height,
         baseHeight: baseHeight
     });
 
+    // baseLine is the the height of the bottom of the graph
     var baseLine = height - baseHeight;
+    // the width of a single bar
     var rectWidth = (width / dimensions.time.numDays) / 3;
+    // get the date labels for the x-axis
     var tickCount = data.length /  10;
     var ticks = dimensions.time.ticks(tickCount);
     var tickFormat = dimensions.time.tickFormat(tickCount);
 
-
+    // create the svg element
     var svg = d3.select("#container")
         .append("svg")
         .attr("width", width)
         .attr("height", height);
 
+    // add date labels
     svg.selectAll(".date")
         .data(ticks)
         .enter()
@@ -127,10 +131,12 @@ $(document).ready(function() {
 
     // init data vis to zero height
     svg.selectAll(".bar-group")
+        // bind each day to a group element
         .data(exerciseData)
         .enter()
         .append("g")
         .selectAll("rect")
+        // bind a list of exercises to a rects
         .data(function(d, i) { return d; })
         .enter()
         .append("rect")
