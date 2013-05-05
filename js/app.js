@@ -105,6 +105,10 @@ var bindEvents = function() {
     });
 };
 
+var slugify = function(name) {
+    return name.toLowerCase().replace(" ", "-");
+}
+
 exerciseData = prepareData(data);
 
 $(document).ready(function() {
@@ -167,7 +171,8 @@ $(document).ready(function() {
             var date = d.date;
             return date.getMonth() + '/' + date.getDay() + '/' + date.getYear() + ' - ' + d.type;
         })
-        .attr("fill", function(d, i) { return dimensions.color(d.type); });
+        .attr("fill", function(d, i) { return dimensions.color(d.type); })
+        .attr("class", function(d) { return slugify(d.type); });
 
     // transition the data to its full height
     svg.selectAll("rect")
